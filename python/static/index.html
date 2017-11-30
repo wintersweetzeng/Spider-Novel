@@ -1,0 +1,53 @@
+{% block head %}
+<title>test</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+{% endblock %}
+
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_content %}
+<div class="container">
+    <div class="row clearfix">
+        <div class="col-md-6 column">
+            <form class="form" method="post">
+                {{form.hidden_tag()}}
+                {{wtf.form_field(form.method)}}
+                {{wtf.form_field(form.url)}}
+
+                {{wtf.form_field(form.reqBody)}}
+                {{wtf.form_field(form.submit)}}
+
+        </form>
+        </div>
+        <div class="col-md-6 column">
+            <h3>Result:</h3>
+            <textarea id="textarea" class="form-control text-body" rows="21">{{result}}</textarea>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/jquery-3.2.1.min.js') }}"></script>
+<script type=text/javascript>
+var $SCRIPT_ROOT = {{request.script_root|tojson|safe}};
+</script>
+<script type="text/javascript">
+
+$(document).ready(function(){
+    $("#submit").click(function(){
+        $.post("/",
+        {
+            url: $( "#url" ).val(),
+        },
+        function(data,status){
+            $( "#textarea" ).text(data);
+        }
+        );
+        return false
+      });
+    });
+</script>
+{% endblock %}
