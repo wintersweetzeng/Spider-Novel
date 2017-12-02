@@ -3,6 +3,7 @@ __author__ = 'winter'
 import json
 from utils.fileTools import FileTools
 from utils.logTools import  Log
+from utils.urlTools import UrlTools
 
 from code import systemCode
 from bean.response.responseNovel import ResponseNovel
@@ -68,11 +69,21 @@ class RequestMannager(object):
         return ObjectJson.convert_to_dict(result)
 
 
-    def addOneNovel(self):
-        Log.info("getChapter novelNo [ %s ] chapterNo [ %s ] "
-                 " chapterTitle [ %s ]  "%(novelNo, novelNo, chapterTitle))
-        fileTools = FileTools(systemCode.baseFolder+u'/SourceUrlFile/'+novelNo+u'/'+chapterNo+chapterTitle+u'.n')
-        content = fileTools.readFile();
-        print(content)
-        result = ResponseChapterContent(content)
-        return ObjectJson.convert_to_dict(result)
+    def addOneNovel(self, novelNo):
+        ok = False
+        Log.info("addOneNovel novelNo [ %s ] "%(novelNo))
+        url = systemCode.baseUrl+u'/'+novelNo+'/'
+        urlTools = UrlTools(url)
+        header, content = urlTools.getUrlContent()
+        if '笔下文学' in content:
+            fileTools = FileTools(systemCode.downloadNovelsInfoFile)
+            content = fileTools.readFile()
+            if novelNo not in content:
+                fileTools = FileTools(systemCode.downloadNovelsInfoFile)
+                novelInfo = systemCode.baseUrl+systemCode.fileContentSplit+url
+                fileTools.fileWriteAppend(novelInfo+u'\r\n');
+            Log.info("addOneNovel novelNo [ %s ] success "%(novelNo))
+            ok = True
+        else:
+            Log.info("addOneNovel novelNo [ %s ] failed  maybe not 笔下文学 or novelNo is error"%(novelNo))
+        return ok

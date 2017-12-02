@@ -74,23 +74,15 @@ def getChapterList():
     else:
         return systemCode.responseMethodError
 
-##  /LoveNovel/getChapterList
+##  /LoveNovel/addOneNovel
 ## request
 # header:content-type json
 # body:{"novelNo":"27_27047"}
 ## response
 #error {"code":1000, "msg":"unsupport GET method, please use POST"}
 #succ
-# [
-#     {
-#         "chapterNo": "第一章",
-#         "chapterTitle": "沙漠中的彼岸花"
-#     },
-#     {
-#         "chapterNo": "第二章",
-#         "chapterTitle": "后文明时代"
-#     }
-# ]
+#"{\"code\":0, \"msg\":success\"}"
+#"{\"code\":1, \"msg\":operate is failed\"}"
 @app.route('/LoveNovel/addOneNovel', methods=['POST', 'GET'])
 def addOneNovel():
     if request.method == 'POST':
@@ -99,7 +91,7 @@ def addOneNovel():
         novelNo = dict["novelNo"]
         ok = requestMannager.addOneNovel(novelNo)
         if ok :
-            return jsonify(systemCode.responseMethodSucc)
+            return jsonify(systemCode.responseSucc)
         else:
             return jsonify(systemCode.responseError)
     else:
@@ -127,7 +119,7 @@ def getChapter():
         result = requestMannager.getChapter(novelNo, chapterNo, chapterTile)
         return jsonify(result)
     else:
-        return systemCode.responseMethodError
+        return systemCode.responseError
 
 @app.route('/', methods=['POST', 'GET'])
 def hello_world():
