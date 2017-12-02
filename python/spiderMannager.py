@@ -20,7 +20,8 @@ class SpiderMannager(object):
     def __init__(self):
         pass
 
-    def __getNovelListFromConfig__(self):
+    def getNovelListFromConfig(self):
+        Log.info("getNovelListFromConfig")
         fileTools = FileTools(systemCode.downloadNovelsInfoFile)
         allNovels = fileTools.readFile()
         Log.info("download file info "+allNovels)

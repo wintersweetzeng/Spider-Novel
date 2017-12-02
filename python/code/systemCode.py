@@ -19,10 +19,10 @@ system = platform.system()
 print(u'this operate system is ',system)
 if system is 'Windows':
     host = u'127.0.0.1'
-    baseFolder =  u"H:/workspace/workspace-python/Spider-Novel/python"
+    baseFolder =  u'H:/workspace/workspace-python/Spider-Novel/python'
 elif system == "Linux":
     host = u'*.*.*.*'
-    baseFolder = u"/root/xiujian/novel/Spider-Novel/python"
+    baseFolder = u'/root/xiujian/novel/Spider-Novel/python'
 else:
     print 'unknow system!'
 
