@@ -47,7 +47,7 @@ class SpiderMannager(object):
         novels = []
         i = 1
         while True:
-            novels = self.__getNovelListFromConfig__()
+            novels = self.getNovelListFromConfig()
             if len(novels) > 0:
                 for  index, novel in enumerate(novels):
                     if systemCode.baseUrl in novel.baseUrl():  ## 陛下文学网
@@ -88,7 +88,7 @@ class SpiderMannager(object):
 
 
     def updateNovel(self):
-        novels = self.__getNovelListFromConfig__()
+        novels = self.getNovelListFromConfig()
         if len(novels) > 0:
             for  index, novel in enumerate(novels):
                 if systemCode.baseUrl in novel.baseUrl():  ## 陛下文学网
