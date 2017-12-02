@@ -23,24 +23,27 @@ class SpiderMannager(object):
     def getNovelListFromConfig(self):
         Log.info("getNovelListFromConfig")
         fileTools = FileTools(systemCode.downloadNovelsInfoFile)
-        allNovels = fileTools.readFile()
-        Log.info("download file info "+allNovels)
+        allNovelNos = fileTools.readFile()
+        Log.info("download file info "+allNovelNos)
         novels = []
-        if allNovels !="":
-            list = allNovels.split('\r\n')
+        if allNovelNos != " ":
+            list = allNovelNos.split('\r\n')
             for index, raw in enumerate(list):
-                raw = raw.replace(' ', '')
-                if '#' in raw and raw[-1] == '/':
-                    tmpList = raw.split('#')
-                    baseUrl = tmpList[0]
-                    novelUrl = tmpList[1]
+                if raw != "":
+                    baseUrl = systemCode.baseUrl
+                    novelUrl = baseUrl +u'/'+raw+u'/'
                     item = DownLoadNovelItem(baseUrl, novelUrl)
                     novels.append(item)
-                    Log.info("DownInfo is "+raw)
+                    Log.info("DownInfo is baseUrl[ %s ] novelUrl[ %s ] "%(baseUrl, novelUrl))
                 else:
-                    Log.error("DownInfo is not except!")
+                    Log.error("DownInfo raw is null")
         else:
             Log.waring("DownInfo is null!")
+        novels = []
+        item = DownLoadNovelItem(u'http://www.bixia.org', 'http://www.bixia.org/27_27047/')
+        item1 = DownLoadNovelItem(u'http://www.bixia.org', 'http://www.bixia.org/41_41384/')
+        novels.append(item)
+        novels.append(item1)
         return novels
 
     def manager(self):
@@ -48,18 +51,19 @@ class SpiderMannager(object):
         i = 1
         while True:
             novels = self.getNovelListFromConfig()
+            Log.info("updateNovel " + str(novels))
             if len(novels) > 0:
                 for  index, novel in enumerate(novels):
                     if systemCode.baseUrl in novel.baseUrl():  ## 陛下文学网
-                        print(u"download source page ")
-                        Log.info(u"download source page ")
+                        print(u"download source page "+systemCode.baseUrl)
+                        Log.info(u"download source page "+systemCode.baseUrl)
                         self.analysisNovelInfo(self.getNovel(novel), novel)
-                        print(u"parse source page ")
-                        Log.info(u"parse source page ")
-                        novelUrl = novel.baseUrl()
+                        print(u"parse source page "+systemCode.baseUrl)
+                        Log.info(u"parse source page "+systemCode.baseUrl)
+                        novelUrl = novel.novelUrl()
                         fileName = novel.fileName()
                         localFolder = novel.localFolder()
-                        fileTools = FileTools(localFolder + "/" + fileName)
+                        fileTools = FileTools(localFolder + u'/' + fileName)
                         content = fileTools.readFile()
                         bixiaParse = BiXiaWenXueParse(content)
                         bixiaParse.setUrl(novelUrl)
@@ -78,6 +82,7 @@ class SpiderMannager(object):
         fileName = novel.fileName()
         localFolder = novel.localFolder()
         print(localFolder)
+        Log.info("getNovel local [ %s ] fileName [ %s ] novelUrl [ %s ] "%(localFolder, fileName, url))
         if not os.path.exists(localFolder):
             os.mkdir(localFolder)
         urlTools = UrlTools(url);
@@ -89,6 +94,7 @@ class SpiderMannager(object):
 
     def updateNovel(self):
         novels = self.getNovelListFromConfig()
+        Log.info("updateNovel " + str(novels))
         if len(novels) > 0:
             for  index, novel in enumerate(novels):
                 if systemCode.baseUrl in novel.baseUrl():  ## 陛下文学网
@@ -100,7 +106,7 @@ class SpiderMannager(object):
                     novelUrl = novel.baseUrl()
                     fileName = novel.fileName()
                     localFolder = novel.localFolder()
-                    fileTools = FileTools(localFolder + "/" + fileName)
+                    fileTools = FileTools(localFolder + u'/' + fileName)
                     content = fileTools.readFile()
                     bixiaParse = BiXiaWenXueParse(content)
                     bixiaParse.setUrl(novelUrl)

@@ -80,8 +80,7 @@ class RequestMannager(object):
             content = fileTools.readFile()
             if novelNo not in content:
                 fileTools = FileTools(systemCode.downloadNovelsInfoFile)
-                novelInfo = systemCode.baseUrl+systemCode.fileContentSplit+url
-                fileTools.fileWriteAppend(novelInfo+u'\r\n');
+                fileTools.fileWriteAppend(novelNo+u'\r\n');
             Log.info("addOneNovel novelNo [ %s ] success "%(novelNo))
             ok = True
         else:
