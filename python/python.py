@@ -74,6 +74,37 @@ def getChapterList():
     else:
         return systemCode.responseMethodError
 
+##  /LoveNovel/getChapterList
+## request
+# header:content-type json
+# body:{"novelNo":"27_27047"}
+## response
+#error {"code":1000, "msg":"unsupport GET method, please use POST"}
+#succ
+# [
+#     {
+#         "chapterNo": "第一章",
+#         "chapterTitle": "沙漠中的彼岸花"
+#     },
+#     {
+#         "chapterNo": "第二章",
+#         "chapterTitle": "后文明时代"
+#     }
+# ]
+@app.route('/LoveNovel/addOneNovel', methods=['POST', 'GET'])
+def addOneNovel():
+    if request.method == 'POST':
+        data = request.get_data()
+        dict = json.loads(data)
+        novelNo = dict["novelNo"]
+        ok = requestMannager.addOneNovel(novelNo)
+        if ok :
+            return jsonify(systemCode.responseMethodSucc)
+        else:
+            return jsonify(systemCode.responseError)
+    else:
+        return systemCode.responseMethodError
+
 
 ##  /LoveNovel/getChapter
 ## request

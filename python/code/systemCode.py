@@ -41,6 +41,8 @@ nineDayDrogenUrl = u'http://www.bixia.org/41_41384/'
 
 
 responseMethodError = '{"code":1000, "msg":"unsupport GET method, please use POST"}'
+responseError = '{"code":1, "msg":operate is failed"}'
+responseSucc = '{"code":0, "msg":success"}'
 
 
 # if system is 'Windows':

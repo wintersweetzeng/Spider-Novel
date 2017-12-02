@@ -67,3 +67,12 @@ class RequestMannager(object):
         result = ResponseChapterContent(content)
         return ObjectJson.convert_to_dict(result)
 
+
+    def addOneNovel(self):
+        Log.info("getChapter novelNo [ %s ] chapterNo [ %s ] "
+                 " chapterTitle [ %s ]  "%(novelNo, novelNo, chapterTitle))
+        fileTools = FileTools(systemCode.baseFolder+u'/SourceUrlFile/'+novelNo+u'/'+chapterNo+chapterTitle+u'.n')
+        content = fileTools.readFile();
+        print(content)
+        result = ResponseChapterContent(content)
+        return ObjectJson.convert_to_dict(result)
