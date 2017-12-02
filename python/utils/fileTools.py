@@ -9,7 +9,7 @@ class FileTools:
     # @staticmethod
     def readFile(self):
         if not os.path.exists(self.fileName):
-            print(self.fileName," file not exist !")
+            print("Read file %s "%(self.fileName)," file not exist !")
             return ""
         file = open(self.fileName, "rb");
         content =  file.read()
