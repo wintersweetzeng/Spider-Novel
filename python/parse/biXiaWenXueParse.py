@@ -23,6 +23,9 @@ class BiXiaWenXueParse(ParseBase):
     def setLocalFolder(self, localFolder):
         self.localFolder = localFolder
 
+    def setNovelNo(self, novelNo):
+        self.novelNo = novelNo
+
     def downLoad(self, url):
         print("down load url ",url)
         Log.info('down load url '+url)
@@ -86,7 +89,6 @@ class BiXiaWenXueParse(ParseBase):
                 no = noAndTitle[0]+u'章'
                 title = noAndTitle[1]
                 self.writeToFile(link, no, title)
-                continue
             elif '<dd>' in raw  and u'月票'  not in raw and u'推迟' not in raw:
                 raw = raw.replace(u'?', u'')  #修改错别字
                 raw = raw.replace(u':', u' ')  #修改错别字
@@ -111,11 +113,9 @@ class BiXiaWenXueParse(ParseBase):
                     self.writeToFile(link, no, title)
                 else:
                     Log.error("parse chapter[ %s ]no  title except is 2 !"%(raw))
-                continue
             else:
                 Log.error(" parse chapter info is unsupport !")
-                continue
-
+            self.annalysisChapterSourceInfo(raw);
     ##   no#name#chapterSourceUrl
     def analysisChapterInfo(self, no='', title='', chapterSourceUrl=''):
         Log.info("analysisChapterInfo start")
@@ -124,3 +124,35 @@ class BiXiaWenXueParse(ParseBase):
         info = no + split + title +split+chapterSourceUrl+'\r\n'
         fileTools.fileWriteAppend(info)
         Log.info("analysisChapterInfo end")
+    ## chapterSourceUrl#titleName
+    def annalysisChapterSourceInfo(self, raw):
+        Log.info("annalysisChapterSourceInfo  [%s] "%(raw))
+        ##<dd> <a style="" href="/167_167729/8536723.html">23 樱花的忍者</a></dd>
+        if '<dd> <a' in raw:
+            ####<dd> <a style="" href="/167_167729/8536723.html">23 樱花的忍者</a></dd>
+            #<dd> <a style=""
+            #/167_167729/8536723.html">23 樱花的忍者</a></dd>
+            tmp = raw.split('href="')
+            ##/167_167729/8536723.html">23 樱花的忍者</a></dd>
+            #/167_167729/8536723.html
+            # 23 樱花的忍者</a></dd>
+            tmp1 = tmp[1].split('">')
+            link = tmp1[0]
+            titleName = tmp1[1].replace('</a></dd>', '')
+            chapterSourceUrl = self.url+link
+            chapterSourceUrl = chapterSourceUrl.replace('//', '/')
+            chapterSourceUrl = chapterSourceUrl.replace(':/', '://')
+            chapterSourceInfo = chapterSourceUrl + systemCode.fileContentSplit+titleName
+
+            Log.info(chapterSourceInfo)
+
+            fileTools = FileTools(systemCode.baseFolder+ u'/SourceUrlFile/'+
+                                  self.novelNo + u'/'+systemCode.oneNovelAllChaptersSourceInfo)
+            allChaptersSource = fileTools.readFile()
+            # if allNovels != "":
+            if chapterSourceInfo not in allChaptersSource:
+                fileTools1 = FileTools(systemCode.baseFolder+ u'/SourceUrlFile/'+
+                                  self.novelNo + u'/'+systemCode.oneNovelAllChaptersSourceInfo)
+                fileTools1.fileWriteAppend(chapterSourceInfo)
+            else:
+                Log.info("annalysisChapterSourceInfo [%s]  is already exist!"%(chapterSourceInfo))

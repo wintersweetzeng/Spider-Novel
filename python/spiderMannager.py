@@ -10,8 +10,8 @@ from utils.logTools import  Log
 from code import systemCode
 
 
-novelsNo = ['27_27047', '167_167732', '167_167728', '167_167714',  '167_167715',
-            '167_167711', '167_167729','167_167708',]
+novelsNo = ['167_167729', '27_27047', '167_167732', '167_167728', '167_167714',  '167_167715',
+            '167_167711', '167_167708',]
 
 
 # from parse.shenxuParse import ShenXuParse  python 3.5
@@ -60,12 +60,14 @@ class SpiderMannager(object):
                         Log.info(u"parse source page "+systemCode.baseUrl)
                         novelUrl = novel.novelUrl()
                         fileName = novel.fileName()
+                        novelNo = novel.novelNo()
                         localFolder = novel.localFolder()
                         fileTools = FileTools(localFolder + u'/' + fileName)
                         content = fileTools.readFile()
                         bixiaParse = BiXiaWenXueParse(content)
                         bixiaParse.setUrl(novelUrl)
                         bixiaParse.setLocalFolder(localFolder)
+                        bixiaParse.setNovelNo(novelNo) ##novelNo
                         bixiaParse.parse()
                     else:
                         Log.error("now unsupport this network "+novel)
@@ -104,11 +106,13 @@ class SpiderMannager(object):
                     novelUrl = novel.baseUrl()
                     fileName = novel.fileName()
                     localFolder = novel.localFolder()
+                    novelNo = novel.novelNo()
                     fileTools = FileTools(localFolder + u'/' + fileName)
                     content = fileTools.readFile()
                     bixiaParse = BiXiaWenXueParse(content)
                     bixiaParse.setUrl(novelUrl)
                     bixiaParse.setLocalFolder(localFolder)
+                    bixiaParse.setNovelNo(novelNo) ##novelNo
                     bixiaParse.parse()
                 else:
                     Log.error("now unsupport this network "+novel)
@@ -142,14 +146,14 @@ class SpiderMannager(object):
                     +str(imageurl)+ split +str(lashUpdateTime)+ split +str(lastUpdateChapter)
         Log.info(novelinfo)
 
-        fileTools = FileTools(systemCode.baseFolder+ '/SourceUrlFile/'+systemCode.allNovelsNameInfoFile)
+        fileTools = FileTools(systemCode.baseFolder+ u'/SourceUrlFile/'+systemCode.allNovelsNameInfoFile)
         allNovels = fileTools.readFile()
         # if allNovels != "":
         if novelNo not in allNovels:
-            fileTools1 = FileTools(systemCode.baseFolder+ '/SourceUrlFile/'+systemCode.allNovelsNameInfoFile)
+            fileTools1 = FileTools(systemCode.baseFolder+ u'/SourceUrlFile/'+systemCode.allNovelsNameInfoFile)
             fileTools1.fileWriteAppend(novelinfo)
         else:
-            Log.info("analysisNovelInfo [%s]  is already exist!")
+            Log.info("analysisNovelInfo [%s]  is already exist!"%(novelinfo))
             # allNovelsList = allNovels.split('\r\n')
             # for index,raw in enumerate(allNovelsList):
             #     if name in raw:

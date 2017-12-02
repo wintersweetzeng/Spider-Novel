@@ -53,15 +53,17 @@ def getNovels():
 ## response
 #error {"code":1000, "msg":"unsupport GET method, please use POST"}
 #succ
-# [
-#     {
-#         "chapterNo": "第一章",
-#         "chapterTitle": "沙漠中的彼岸花"
-#     },
-#     {
-#         "chapterNo": "第二章",
-#         "chapterTitle": "后文明时代"
-#     }
+#[
+# {
+#     "chapterNo": "第一章",
+#     "chapterSourceUrl": "",
+#     "chapterTitle": "沙漠中的彼岸花"
+# },
+# {
+#     "chapterNo": "第二章",
+#     "chapterSourceUrl": "",
+#     "chapterTitle": "后文明时代"
+# },
 # ]
 @app.route('/LoveNovel/getChapterList', methods=['POST', 'GET'])
 def getChapterList():
@@ -126,23 +128,47 @@ def hello_world():
     return render_template(systemCode.baseFolder+u'/index.html',title = 'Home')
     # return systemCode.baseFolder+u'/index.html'  http://www.jb51.net/article/64452.htm
 
-# spider = SpiderMannager()
-# updateNovelThreads = []
-# updateThread = threading.Thread(target=spider.manager(),args=())
-# updateNovelThreads.append(updateThread)
-
 @app.route('/LoveNovel/updateNovel', methods=['POST', 'GET'])
 def updateNovel():
     spider = SpiderMannager()
     spider.updateNovel()
-    # # updateNovelThreads = []
-    # updateThread = threading.Thread(target=spider.manager(),args=())
-    # # updateNovelThreads.append(updateThread)
-    # updateThread.setDaemon(False)
-    # updateThread.start()
     return jsonify(systemCode.responseSucc)
 
 
+##  /LoveNovel/getChapterList
+## request
+# header:content-type json
+# body:{"novelNo":"27_27047"}
+## response
+#error {"code":1000, "msg":"unsupport GET method, please use POST"}
+#succ
+#[
+# {
+#     "chapterNo": "第一章",
+#     "chapterSourceUrl": "",
+#     "chapterTitle": "沙漠中的彼岸花"
+# },
+# {
+#     "chapterNo": "第二章",
+#     "chapterSourceUrl": "",
+#     "chapterTitle": "后文明时代"
+# },
+# ]
+@app.route('/LoveNovel/getChapterSourceList', methods=['POST', 'GET'])
+def getChapterSourceList():
+    if request.method == 'POST':
+        data = request.get_data()
+        dict = json.loads(data)
+        novelNo = dict["novelNo"]
+        result = requestMannager.getChapterSourceList(novelNo)
+        return jsonify(result)
+    else:
+        return systemCode.responseMethodError
+
+# spider = SpiderMannager()
+# updateNovelThreads = []
+# updateThread = threading.Thread(target=spider.manager(),args=())
+# updateNovelThreads.append(updateThread)
 
 
 if __name__ == '__main__':

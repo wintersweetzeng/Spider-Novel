@@ -9,6 +9,7 @@ from code import systemCode
 from bean.response.responseNovel import ResponseNovel
 from bean.response.responseChapter import ResponseChapter
 from bean.response.responseChapterContent import ResponseChapterContent
+from bean.response.responseNovelChapterSource import ResponseNovelChapterSource
 from utils.objectJson import ObjectJson
 
 class RequestMannager(object):
@@ -89,3 +90,25 @@ class RequestMannager(object):
         else:
             Log.info("addOneNovel novelNo [ %s ] failed  maybe not 笔下文学 or novelNo is error"%(novelNo))
         return ok
+
+    def getChapterSourceList(self, novelNo):
+        fileTools = FileTools(systemCode.baseFolder+u'/SourceUrlFile/'+novelNo+u'/'+systemCode.oneNovelAllChaptersSourceInfo)
+        content = fileTools.readFile();
+        responseNovelChapterSources = []
+        if content != "":
+            contentList = content.split('\r\n')
+            for index, raw in enumerate(contentList):
+                if '#' in content:
+                    chapterInfoList = raw.split(systemCode.fileContentSplit)
+                    if len(chapterInfoList) == 2:
+                        chapterSourceInfo = ResponseNovelChapterSource(chapterInfoList[0],chapterInfoList[1])
+                        responseNovelChapterSources.append(chapterSourceInfo)
+                    else:
+                        Log.error("getChapterSourceList novel  %s  len  is not 2"%(raw))
+                else:
+                    Log.error("getChapterSourceList content  %s is error"%(raw))
+        else:
+            Log.error("getChapterSourceList content  %s NULL")
+        # Log.info("getNovels result "+chapters)
+        return ObjectJson.convert_to_dicts(responseNovelChapterSources)
+

@@ -8,7 +8,8 @@ allNovelsNameInfoFile="novelsNameInfo.txt"
 ##   no#name#chapterSourceUrl
 oneNovelAllChaptersInfoFile="chaptersInfo.txt"
 fileContentSplit='#'
-
+## chapterSourceUrl#titleName
+oneNovelAllChaptersSourceInfo="chaptersSourceInfo.txt"
 
 baseFolder = ''
 host = ''
