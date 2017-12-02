@@ -135,24 +135,22 @@ def updateNovel():
     return jsonify(systemCode.responseSucc)
 
 
-##  /LoveNovel/getChapterList
+##  /LoveNovel/getChapterSourceList
 ## request
 # header:content-type json
-# body:{"novelNo":"27_27047"}
+# body:{"novelNo":"167_167729"}
 ## response
 #error {"code":1000, "msg":"unsupport GET method, please use POST"}
 #succ
 #[
 # {
-#     "chapterNo": "第一章",
-#     "chapterSourceUrl": "",
-#     "chapterTitle": "沙漠中的彼岸花"
+#     "chapterSourceUrl": "http://www.bixia.org/167_167729/167_167729/8536700.html",
+#     "titleName": "110快来这有作者偷懒了!"
 # },
 # {
-#     "chapterNo": "第二章",
-#     "chapterSourceUrl": "",
-#     "chapterTitle": "后文明时代"
-# },
+#     "chapterSourceUrl": "http://www.bixia.org/167_167729/167_167729/8536701.html",
+#     "titleName": "1 入职"
+# }
 # ]
 @app.route('/LoveNovel/getChapterSourceList', methods=['POST', 'GET'])
 def getChapterSourceList():
