@@ -21,8 +21,8 @@ if system is 'Windows':
     host = u'127.0.0.1'
     baseFolder =  u"H:/workspace/workspace-python/Spider-Novel/python"
 elif system == "Linux":
-    host = u'106.14.45.230'
-    baseFolder = u"/root/novel/python"
+    host = u'*.*.*.*'
+    baseFolder = u"/root/xiujian/novel/Spider-Novel/python"
 else:
     print 'unknow system!'
 
