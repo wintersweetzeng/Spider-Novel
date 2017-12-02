@@ -126,10 +126,10 @@ def hello_world():
     return render_template(systemCode.baseFolder+u'/index.html',title = 'Home')
     # return systemCode.baseFolder+u'/index.html'  http://www.jb51.net/article/64452.htm
 
-spider = SpiderMannager()
-updateNovelThreads = []
-updateThread = threading.Thread(target=spider.manager(),args=())
-updateNovelThreads.append(updateThread)
+# spider = SpiderMannager()
+# updateNovelThreads = []
+# updateThread = threading.Thread(target=spider.manager(),args=())
+# updateNovelThreads.append(updateThread)
 
 @app.route('/LoveNovel/updateNovel', methods=['POST', 'GET'])
 def updateNovel():
