@@ -69,7 +69,7 @@ class SpiderMannager(object):
                 print("no %s all over %s" %(i,ctime()))
                 Log.info("no %s all over %s" %(i,ctime()))
                 i = i + 1
-            sleep(3600*12)
+            sleep(60*3600*12)
 
 
     def getNovel(self,novel):
@@ -84,6 +84,30 @@ class SpiderMannager(object):
         fileTools = FileTools(localFolder+ u'/' +fileName);
         fileTools.writeNewFile(content)
         return content
+
+
+    def updateNovel(self):
+        novels = self.__getNovelListFromConfig__()
+        if len(novels) > 0:
+            for  index, novel in enumerate(novels):
+                if systemCode.baseUrl in novel.baseUrl():  ## 陛下文学网
+                    print(u"download source page ")
+                    Log.info(u"download source page ")
+                    self.analysisNovelInfo(self.getNovel(novel), novel)
+                    print(u"parse source page ")
+                    Log.info(u"parse source page ")
+                    novelUrl = novel.baseUrl()
+                    fileName = novel.fileName()
+                    localFolder = novel.localFolder()
+                    fileTools = FileTools(localFolder + "/" + fileName)
+                    content = fileTools.readFile()
+                    bixiaParse = BiXiaWenXueParse(content)
+                    bixiaParse.setUrl(novelUrl)
+                    bixiaParse.setLocalFolder(localFolder)
+                    bixiaParse.parse()
+                else:
+                    Log.error("now unsupport this network "+novel)
+            Log.info("all over %s" %(ctime()))
 
     ##   no#name#url#author#imageurl#lashUpdateTime#lastUpdateChapter
     def analysisNovelInfo(self, content, novel):

@@ -126,26 +126,30 @@ def hello_world():
     return render_template(systemCode.baseFolder+u'/index.html',title = 'Home')
     # return systemCode.baseFolder+u'/index.html'  http://www.jb51.net/article/64452.htm
 
-
-
-# @app.route('/LoveNovel/updateNovel', methods=['POST', 'GET'])
-# def updateNovel():
-#     for thread in updateNovelThreads:
-#         thread.setDaemon(True)
-#         thread.start()
-#     return "OK"
-
-
 # spider = SpiderMannager()
 # updateNovelThreads = []
 # updateThread = threading.Thread(target=spider.manager(),args=())
 # updateNovelThreads.append(updateThread)
 
+@app.route('/LoveNovel/updateNovel', methods=['POST', 'GET'])
+def updateNovel():
+    spider = SpiderMannager()
+    spider.updateNovel()
+    # # updateNovelThreads = []
+    # updateThread = threading.Thread(target=spider.manager(),args=())
+    # # updateNovelThreads.append(updateThread)
+    # updateThread.setDaemon(False)
+    # updateThread.start()
+    return jsonify(systemCode.responseSucc)
+
+
+
+
 if __name__ == '__main__':
     app.run(host=systemCode.host, port='5000', debug=False)
-    for thread in updateNovelThreads:
-        thread.setDaemon(True)
-        thread.start()
+    # for thread in updateNovelThreads:
+    #     thread.setDaemon(False)
+    #     thread.start()
 
 
 
