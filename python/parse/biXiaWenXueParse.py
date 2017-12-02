@@ -44,9 +44,14 @@ class BiXiaWenXueParse(ParseBase):
                 chapterPage = self.downLoad(url)
             except Exception, e:
                 print e.message
-                Log.error('error download url '+url+' error info '+e.message)
-                sleep(1)
-                chapterPage = self.downLoad(url)
+                Log.error('one error download url '+url+' error info '+e.message)
+                sleep(30)
+                try:
+                    chapterPage = self.downLoad(url)
+                except Exception, e:
+                    sleep(120)
+                    Log.error('two error download url '+url+' error info '+e.message)
+                    chapterPage = self.downLoad(url)
             self.analysisChapterInfo(no, title, url)
             fileTools = FileTools(fileName)
             # fileTools.writeNewFile(chapterPage) # chapter content contains others info
