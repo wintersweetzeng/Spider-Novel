@@ -46,7 +46,10 @@ class RequestMannager(object):
             for index, raw in enumerate(contentList):
                 if '#' in content:
                     chapterInfoList = raw.split(systemCode.fileContentSplit)
-                    if len(chapterInfoList) == 2:
+                    if len(chapterInfoList) == 3:
+                        chapterInfo = ResponseChapter(chapterInfoList[0],chapterInfoList[1],chapterInfoList[2])
+                        chapters.append(chapterInfo)
+                    elif len(chapterInfoList) == 2:
                         chapterInfo = ResponseChapter(chapterInfoList[0],chapterInfoList[1])
                         chapters.append(chapterInfo)
 

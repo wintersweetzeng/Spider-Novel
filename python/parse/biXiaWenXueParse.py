@@ -30,7 +30,7 @@ class BiXiaWenXueParse(ParseBase):
         header, content = urlTools.getUrlContent()
         return content
 
-    def writeToFile(self, link, no, title):
+    def writeToFile(self, link='', no='', title=''):
         url = self.url+link
         url = url.replace('//', '/')
         url = url.replace(':/', '://')
@@ -39,12 +39,12 @@ class BiXiaWenXueParse(ParseBase):
             # content is source page
             try:
                 chapterPage = self.downLoad(url)
-                self.analysisChapterInfo(no, title)
             except Exception, e:
                 print e.message
                 Log.error('error download url '+url+' error info '+e.message)
                 sleep(1)
                 chapterPage = self.downLoad(url)
+            self.analysisChapterInfo(no, title, url)
             fileTools = FileTools(fileName)
             # fileTools.writeNewFile(chapterPage) # chapter content contains others info
             #replace
@@ -116,11 +116,11 @@ class BiXiaWenXueParse(ParseBase):
                 Log.error(" parse chapter info is unsupport !")
                 continue
 
-    ##   no#name
-    def analysisChapterInfo(self, no, title):
+    ##   no#name#chapterSourceUrl
+    def analysisChapterInfo(self, no='', title='', chapterSourceUrl=''):
         Log.info("analysisChapterInfo start")
         fileTools = FileTools(self.localFolder+'/'+systemCode.oneNovelAllChaptersInfoFile)
         split = systemCode.fileContentSplit
-        info = no + split + title + '\r\n'
+        info = no + split + title +split+chapterSourceUrl+'\r\n'
         fileTools.fileWriteAppend(info)
         Log.info("analysisChapterInfo end")

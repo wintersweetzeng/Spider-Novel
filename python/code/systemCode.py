@@ -5,7 +5,7 @@ baseUrl = u"http://www.bixia.org"
 
 ##    no#name#url#author#imageurl#lashUpdateTime#lastUpdateChapter
 allNovelsNameInfoFile="novelsNameInfo.txt"
-##   no#name
+##   no#name#chapterSourceUrl
 oneNovelAllChaptersInfoFile="chaptersInfo.txt"
 fileContentSplit='#'
 
