@@ -10,6 +10,8 @@ from utils.logTools import  Log
 from code import systemCode
 
 
+novelsNo = ['27_27047', '167_167732', '167_167728', '167_167714',  '167_167715',
+            '167_167711', '167_167729','167_167708',]
 
 
 # from parse.shenxuParse import ShenXuParse  python 3.5
@@ -28,6 +30,7 @@ class SpiderMannager(object):
         novels = []
         if allNovelNos != " ":
             list = allNovelNos.split('\r\n')
+            list = novelsNo
             for index, raw in enumerate(list):
                 if raw != "":
                     baseUrl = systemCode.baseUrl
@@ -39,11 +42,6 @@ class SpiderMannager(object):
                     Log.error("DownInfo raw is null")
         else:
             Log.waring("DownInfo is null!")
-        novels = []
-        item = DownLoadNovelItem(u'http://www.bixia.org', 'http://www.bixia.org/27_27047/')
-        item1 = DownLoadNovelItem(u'http://www.bixia.org', 'http://www.bixia.org/41_41384/')
-        novels.append(item)
-        novels.append(item1)
         return novels
 
     def manager(self):
@@ -146,17 +144,20 @@ class SpiderMannager(object):
 
         fileTools = FileTools(systemCode.baseFolder+ '/SourceUrlFile/'+systemCode.allNovelsNameInfoFile)
         allNovels = fileTools.readFile()
-        tmpAllNovels = ''
-        if allNovels != "":
-            allNovelsList = allNovels.split('\r\n')
-            for index,raw in enumerate(allNovelsList):
-                if name in raw:
-                    tmpAllNovels += novelinfo+'\r\n';
-                else:
-                    tmpAllNovels += raw+'\r\n';
+        # if allNovels != "":
+        if novelNo not in allNovels:
+            fileTools1 = FileTools(systemCode.baseFolder+ '/SourceUrlFile/'+systemCode.allNovelsNameInfoFile)
+            fileTools1.fileWriteAppend(novelinfo)
         else:
-            tmpAllNovels = novelinfo+'\r\n';
-        fileTools1 = FileTools(systemCode.baseFolder+ '/SourceUrlFile/'+systemCode.allNovelsNameInfoFile)
-        fileTools1.writeNewFile(tmpAllNovels)
+            Log.info("analysisNovelInfo [%s]  is already exist!")
+            # allNovelsList = allNovels.split('\r\n')
+            # for index,raw in enumerate(allNovelsList):
+            #     if name in raw:
+            #         tmpAllNovels += novelinfo+'\r\n';
+            #     else:
+            #         tmpAllNovels += raw+'\r\n';
+        # else:
+        tmpAllNovels = novelinfo+'\r\n';
+
         Log.info("analysisNovelInfo end")
 

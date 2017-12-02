@@ -32,6 +32,8 @@ class BiXiaWenXueParse(ParseBase):
 
     def writeToFile(self, link, no, title):
         url = self.url+link
+        url = url.replace('//', '/')
+        url = url.replace(':/', '://')
         fileName = self.localFolder+ '/' + no + title+".n"
         if not os.path.exists(fileName): # chapter  not exist is need down
             # content is source page
@@ -61,6 +63,7 @@ class BiXiaWenXueParse(ParseBase):
         for index, raw in enumerate(contentList):
             if '<dd>' in raw  and u'月票'  not in raw and u'推迟' not in raw and u'第' in raw:
                 raw = raw.replace(u'掌', u'章')  #修改错别字
+                raw = raw.replace(u':', u' ')  #修改错别字
                 raw = raw.replace(u'?', u'')  #修改错别字
                 ##<dd> <a style="" href="/27_27047/2325047.html">第七百七十五章 专打老天才</a></dd>   to
                 #/27_27047/2325047.html">第七百七十五章 专打老天才</a></dd>
@@ -83,6 +86,35 @@ class BiXiaWenXueParse(ParseBase):
                 no = noAndTitle[0]+u'章'
                 title = noAndTitle[1]
                 self.writeToFile(link, no, title)
+                continue
+            elif '<dd>' in raw  and u'月票'  not in raw and u'推迟' not in raw:
+                raw = raw.replace(u'?', u'')  #修改错别字
+                raw = raw.replace(u':', u' ')  #修改错别字
+                ##<dd> <a style="" href="/167_167729/8536701.html">1 入职</a></dd>   to
+                #/27_27047/2325047.html">1 入职</a></dd>
+                chapterList = raw.split('href="');
+                ##/27_27047/2325047.html">1 入职</a></dd>      to
+                #/27_27047/2325169.html
+                #1 入职</a></dd>
+                tmpList = chapterList[1].split('">')
+                link = tmpList[0]
+                ##1 入职</a></dd>     to
+                #1 入职
+                tmpTitleList = tmpList[1].split('</a>')
+                ##1 入职
+                #1
+                #入职
+                noAndTitle = tmpTitleList[0].split(' ')
+                if len(noAndTitle) == 2:
+                    no = noAndTitle[0]
+                    title = noAndTitle[1]
+                    self.writeToFile(link, no, title)
+                else:
+                    Log.error("parse chapter[ %s ]no  title except is 2 !"%(raw))
+                continue
+            else:
+                Log.error(" parse chapter info is unsupport !")
+                continue
 
     ##   no#name
     def analysisChapterInfo(self, no, title):
