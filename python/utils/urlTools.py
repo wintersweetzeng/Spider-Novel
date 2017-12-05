@@ -3,7 +3,6 @@ __author__ = 'winter'
 
 # from  urllib import request  python 3.5
 import urllib
-print("urlTools")
 class UrlTools:
     url = "http://www.baidu.com"
     def __init__(self):

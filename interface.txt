@@ -1,0 +1,42 @@
+127.0.0.1:5000/LoveNovel/getNovels
+header Content-Type:application/json
+{"count":10}
+
+[
+    {
+        "author": "辰东",
+        "imageurl": "http://www.bixia.org/BookFiles/BookImages/shengxu.jpg",
+        "lashUpdateTime": "2017/12/2 2:35:07",
+        "lastUpdateChapter": "第七百八十九章 神兽血浇灌",
+        "name": "圣墟",
+        "no": "27_27047",
+        "url": "http://www.bixia.org/27_27047/"
+    }
+]
+
+127.0.0.1:5000/LoveNovel/getChapterList
+header Content-Type:application/json
+{"novelNo":"27_27047"}
+
+[
+    {
+        "chapterNo": "第一章",
+        "chapterTitle": "沙漠中的彼岸花"
+    },
+    {
+        "chapterNo": "第二章",
+        "chapterTitle": "后文明时代"
+    },
+    {
+        "chapterNo": "第三章",
+        "chapterTitle": "青铜昆仑"
+    }
+]
+
+127.0.0.1:5000/LoveNovel/getChapter
+header Content-Type:application/json
+
+{"novelNo":"27_27047","chapterNo":"第一章", "chapterTitle":"沙漠中的彼岸花"}
+{
+    "content": "\t\t\t\t大漠孤烟直，长河落日圆。<br/>　　<br/>　　&nbsp;&nbsp;&nbsp;&nbs"
+}

@@ -1,136 +1,179 @@
 # -*- coding: UTF-8 -*-
-import sys
 
-from flask import Flask, request,render_template
-import os, sys
-from time import ctime,sleep
+import sys, json, os, threading
+from flask import Flask, request,render_template,jsonify
 
-from urlTools import UrlTools
-from fileTools import FileTools
-from logTools import  Log
-
-# from parse.shenxuParse import ShenXuParse  python 3.5
-from parse.shenxuParse import ShenXuParse
-from novel.downloadnovelItem import DownLoadNovelItem
+from utils.fileTools import FileTools
+from utils.logTools import Log
 from code import systemCode
+from spiderMannager import SpiderMannager
+from requestMannager.requestsMannager import RequestMannager
 
-import threading
 
 app = Flask(__name__)
 
 reload(sys)
 sys.setdefaultencoding( "utf-8" )
 
+requestMannager = RequestMannager()
+
+##  /LoveNovel/getNovels
+## request
+# header:content-type json
+# body:{"count":10}
+## response
+#error {"code":1000, "msg":"unsupport GET method, please use POST"}
+#succ
+# [
+#     {
+#         "author": "辰东",
+#         "imageurl": "http://www.bixia.org/BookFiles/BookImages/shengxu.jpg",
+#         "lashUpdateTime": "2017/12/2 2:35:07",
+#         "lastUpdateChapter": "第七百八十九章 神兽血浇灌",
+#         "name": "圣墟",
+#         "no": "27_27047",
+#         "url": "http://www.bixia.org/27_27047/"
+#     }
+# ]
+@app.route('/LoveNovel/getNovels', methods=['POST', 'GET'])
+def getNovels():
+    if request.method == 'POST':
+        data = request.get_data()
+        dict = json.loads(data)
+        count = dict["count"]
+        result1 = requestMannager.getNovels()
+        return jsonify(result1)
+    else:
+        return systemCode.responseMethodError
+
+##  /LoveNovel/getChapterList
+## request
+# header:content-type json
+# body:{"novelNo":"27_27047"}
+## response
+#error {"code":1000, "msg":"unsupport GET method, please use POST"}
+#succ
+#[
+# {
+#     "chapterNo": "第一章",
+#     "chapterSourceUrl": "",
+#     "chapterTitle": "沙漠中的彼岸花"
+# },
+# {
+#     "chapterNo": "第二章",
+#     "chapterSourceUrl": "",
+#     "chapterTitle": "后文明时代"
+# },
+# ]
+@app.route('/LoveNovel/getChapterList', methods=['POST', 'GET'])
+def getChapterList():
+    if request.method == 'POST':
+        data = request.get_data()
+        dict = json.loads(data)
+        novelNo = dict["novelNo"]
+        result = requestMannager.getChapterList(novelNo)
+        return jsonify(result)
+    else:
+        return systemCode.responseMethodError
+
+##  /LoveNovel/addOneNovel
+## request
+# header:content-type json
+# body:{"novelNo":"27_27047"}
+## response
+#error {"code":1000, "msg":"unsupport GET method, please use POST"}
+#succ
+#"{\"code\":0, \"msg\":success\"}"
+#"{\"code\":1, \"msg\":operate is failed\"}"
+@app.route('/LoveNovel/addOneNovel', methods=['POST', 'GET'])
+def addOneNovel():
+    if request.method == 'POST':
+        data = request.get_data()
+        dict = json.loads(data)
+        novelNo = dict["novelNo"]
+        ok = requestMannager.addOneNovel(novelNo)
+        if ok :
+            return jsonify(systemCode.responseSucc)
+        else:
+            return jsonify(systemCode.responseError)
+    else:
+        return systemCode.responseMethodError
+
+
+##  /LoveNovel/getChapter
+## request
+# header:content-type json
+# body:{"novelNo":"27_27047","chapterNo":"第一章", "chapterTitle":"沙漠中的彼岸花"}
+## response
+#error {"code":1000, "msg":"unsupport GET method, please use POST"}
+#succ
+# {
+#     "content": "\t\t\t\t大漠孤烟直，长河落日圆。<br/>　　<br/>　　&nbsp;&nbsp;&nbsp;&nbs"
+# }
+@app.route('/LoveNovel/getChapter', methods=['POST', 'GET'])
+def getChapter():
+    if request.method == 'POST':
+        data = request.get_data()
+        dict = json.loads(data)
+        novelNo = dict["novelNo"]
+        chapterNo = dict["chapterNo"]
+        chapterTile = dict["chapterTitle"]
+        result = requestMannager.getChapter(novelNo, chapterNo, chapterTile)
+        return jsonify(result)
+    else:
+        return systemCode.responseError
+
 @app.route('/', methods=['POST', 'GET'])
 def hello_world():
     return render_template(systemCode.baseFolder+u'/index.html',title = 'Home')
     # return systemCode.baseFolder+u'/index.html'  http://www.jb51.net/article/64452.htm
 
-def manager():
-    novels = []
-    shenXuItem = DownLoadNovelItem(systemCode.baseUrl,systemCode.shenXuNovelUrl, systemCode.shenXuFileName, systemCode.shenXuLocalFolder);
-    nineDayDrogen = DownLoadNovelItem(systemCode.baseUrl, systemCode.nineDayDrogenUrl, systemCode.nineDayDrogenFileName, systemCode.nineDayDrogenFolder)
-    # novels.append(shenXuItem)
-    novels.append(nineDayDrogen)
-    i = 1
-    while True:
-        for index, novel in enumerate(novels):
-            print(u"download source page ")
-            Log.info(u"download source page ")
-            getNovel(novel)
-            print(u"parse source page ")
-            Log.info(u"parse source page ")
-            # novelUrl = u'http://www.bixia.org'
-            # fileName = u"圣墟.txt"
-            # novelUrl = systemCode.baseUrl
-            # fileName = systemCode.shenXuFileName
-            # localFolder = systemCode.shenXuLocalFolder
-            novelUrl = novel.baseUrl
-            fileName = novel.fileName
-            localFolder = novel.localFolder
-            fileTools = FileTools(localFolder + "/" + fileName)
-            content = fileTools.readFile()
-            shenXuParse = ShenXuParse(content)
-            shenXuParse.setUrl(novelUrl)
-            shenXuParse.setLocalFolder(localFolder)
-            shenXuParse.parse()
-        print("no %s all over %s" %(i,ctime()))
-        Log.info("no %s all over %s" %(i,ctime()))
-        i = i + 1
-        sleep(3600*12)
-
-def getNovel(novel):
-    # url = u"http://www.bixia.org/27_27047/"
-    # fileName = u"圣墟.txt";
-
-    # url = systemCode.shenXuNovelUrl
-    # fileName = systemCode.shenXuFileName
-    # localFolder = systemCode.shenXuLocalFolder
-    url = novel.novelUrl
-    fileName = novel.fileName
-    localFolder = novel.localFolder
-    if not os.path.exists(localFolder):
-        os.mkdir(localFolder)
-    urlTools = UrlTools(url);
-    header, content = urlTools.getUrlContent()
-    fileTools = FileTools(localFolder+ u'/' +fileName);
-    fileTools.writeNewFile(content)
-    return content
-
-@app.route('/LoveNovel/getShenXuAllChapter', methods=['POST', 'GET'])
-def getShenXuAllChapter():
-    shenXuDir = systemCode.shenXuLocalFolder
-    list = os.listdir(shenXuDir)
-    result=[]
-    for index, file in enumerate(list):
-        if '.n' in file:
-            result.append(file)
-    # list to string
-    resultStr = ''.join(result)
-    return resultStr
-
-@app.route('/LoveNovel/getShenXuAllNovel', methods=['POST', 'GET'])
-def getShenXuAllNovel():
-    novelDir = systemCode.novelFolder
-    list = os.listdir(novelDir)
-    result=[]
-    for index, file in enumerate(list):
-        result.append(file)
-    # list to string
-    resultStr = ''.join(result)
-    return resultStr
-
-@app.route('/LoveNovel/getShenXuChapter', methods=['POST', 'GET'])
-def getChapter():
-    if request.method == 'GET':
-        file = request.args.get('no', type=str, default=None)
-        print('getShenXuChapter file', file)
-        if file is None:
-            file = u'第一章 沙漠中的彼岸花'+u'.n'
-        # shenXuDir=u"E:/python/SourceUrlFile/圣墟"
-        shenXuDir = systemCode.shenXuLocalFolder
-        fileTools = FileTools(shenXuDir + u'/' + file)
-        content = fileTools.readFile()
-        return content
-    else:
-        return ''
-
-
-updateNovelThreads = []
-updateThread = threading.Thread(target=manager,args=())
-updateNovelThreads.append(updateThread)
-
-
 @app.route('/LoveNovel/updateNovel', methods=['POST', 'GET'])
 def updateNovel():
-    for thread in updateNovelThreads:
-        thread.setDaemon(True)
-        thread.start()
-    return "OK"
+    spider = SpiderMannager()
+    spider.updateNovel()
+    return jsonify(systemCode.responseSucc)
+
+
+##  /LoveNovel/getChapterSourceList
+## request
+# header:content-type json
+# body:{"novelNo":"167_167729"}
+## response
+#error {"code":1000, "msg":"unsupport GET method, please use POST"}
+#succ
+#[
+# {
+#     "chapterSourceUrl": "http://www.bixia.org/167_167729/167_167729/8536700.html",
+#     "titleName": "110快来这有作者偷懒了!"
+# },
+# {
+#     "chapterSourceUrl": "http://www.bixia.org/167_167729/167_167729/8536701.html",
+#     "titleName": "1 入职"
+# }
+# ]
+@app.route('/LoveNovel/getChapterSourceList', methods=['POST', 'GET'])
+def getChapterSourceList():
+    if request.method == 'POST':
+        data = request.get_data()
+        dict = json.loads(data)
+        novelNo = dict["novelNo"]
+        result = requestMannager.getChapterSourceList(novelNo)
+        return jsonify(result)
+    else:
+        return systemCode.responseMethodError
+
+# spider = SpiderMannager()
+# updateNovelThreads = []
+# updateThread = threading.Thread(target=spider.manager(),args=())
+# updateNovelThreads.append(updateThread)
+
 
 if __name__ == '__main__':
-    # for thread in updateNovelThreads:
-    #     thread.setDaemon(True)
-    #     thread.start()
     app.run(host=systemCode.host, port='5000', debug=False)
+    # for thread in updateNovelThreads:
+    #     thread.setDaemon(False)
+    #     thread.start()
+
+
 

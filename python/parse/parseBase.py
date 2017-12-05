@@ -6,6 +6,8 @@ class ParseBase(object):
         self.content = content
     def setUrl(self, url):
         self.url = url
+    def setNovelNo(self, novelNo):
+        self.novelNo = novelNo
     # @abs
     def parse(self):
         pass
