@@ -1,6 +1,6 @@
 # -*- coding:UTF-8 -*-
 __author__ = 'winter'
-import json
+import json, time, random
 from utils.fileTools import FileTools
 from utils.logTools import  Log
 from utils.urlTools import UrlTools
@@ -10,6 +10,8 @@ from bean.response.responseNovel import ResponseNovel
 from bean.response.responseChapter import ResponseChapter
 from bean.response.responseChapterContent import ResponseChapterContent
 from bean.response.responseNovelChapterSource import ResponseNovelChapterSource
+from bean.response.responseUser import ResponseUser
+from bean.response.responseReadChapter import ResponseReadChapter
 from utils.objectJson import ObjectJson
 
 class RequestMannager(object):
@@ -65,10 +67,9 @@ class RequestMannager(object):
 
     def getChapter(self, novelNo, chapterNo, chapterTitle):
         Log.info("getChapter novelNo [ %s ] chapterNo [ %s ] "
-                 " chapterTitle [ %s ]  "%(novelNo, novelNo, chapterTitle))
+                 " chapterTitle [ %s ]  "%(novelNo, chapterNo, chapterTitle))
         fileTools = FileTools(systemCode.baseFolder+u'/SourceUrlFile/'+novelNo+u'/'+chapterNo+chapterTitle+u'.n')
         content = fileTools.readFile();
-        print(content)
         result = ResponseChapterContent(content)
         return ObjectJson.convert_to_dict(result)
 
@@ -112,3 +113,83 @@ class RequestMannager(object):
         # Log.info("getNovels result "+chapters)
         return ObjectJson.convert_to_dicts(responseNovelChapterSources)
 
+    ## id#name#pwd#org
+    def registry(self, username, password, org):
+        if org != 'Super':
+            return systemCode.registryErrorOrg
+        elif username == '' or password == '':
+            return systemCode.registryErrorNameOrPwd
+        else:
+            fileTools = FileTools(systemCode.userInfoFile)
+            allUser = fileTools.readFile()
+            if username in allUser:
+                return systemCode.registryErrorAlready
+            else:
+                split = systemCode.fileContentSplit
+                millis = int(round(time.time()*100000))
+                rand = random.randint(1, 1000)
+                id = millis + rand
+                user = str(id) + split + username +split + password + split + org+u'\r\n'
+                fileTools = FileTools(systemCode.userInfoFile)
+                fileTools.fileWriteAppend(user)
+                user = ResponseUser(id, username, password, org)
+                return ObjectJson.convert_to_dict(user)
+
+
+    def login(self, username, password):
+        if username == '' or password == '':
+            return systemCode.loginErrorNameOrPwdNull
+        else:
+            fileTools = FileTools(systemCode.userInfoFile)
+            allUser = fileTools.readFile()
+            if username not in allUser:
+                return systemCode.loginErrorNotRegistry
+            else:
+                userList = allUser.split(u'\r\n')
+                for index, user in enumerate(userList):
+                    if username in user and password in user:
+                        id = user.split(systemCode.fileContentSplit)[0]
+                        return '{"code":0, "msg":"success", "id":"'+str(id)+'"}'
+
+            return systemCode.loginErrorNameOrPwd
+
+    def userGetChapter(self, novelNo, chapterNo, chapterTitle, id):
+        Log.info("userGetChapter novelNo [ %s ] chapterNo [ %s ] "
+                 " chapterTitle [ %s ]  user id [%s]"%(novelNo, chapterNo, chapterTitle, id))
+        fileTools = FileTools(systemCode.baseFolder+u'/SourceUrlFile/'+novelNo+u'/'+chapterNo+chapterTitle+u'.n')
+        content = fileTools.readFile();
+
+        split = systemCode.fileContentSplit
+        userReadInfo = id + split + novelNo + split + chapterNo + split +chapterTitle
+        fileTools = FileTools(systemCode.userReadNovelFile)
+        readInfo = fileTools.readFile()
+        if userReadInfo not in readInfo:
+            fileTools = FileTools(systemCode.userReadNovelFile)
+            fileTools.fileWriteAppend(userReadInfo)
+        result = ResponseChapterContent(content)
+        return ObjectJson.convert_to_dict(result)
+
+    def queryUserReadChapter(self, novelNo,  id):
+        Log.info("userGetChapter novelNo [ %s ]   user id [%s]"%(novelNo, id))
+        fileTools = FileTools(systemCode.userReadNovelFile)
+        readInfo = fileTools.readFile();
+        split = systemCode.fileContentSplit
+        list = readInfo.split('\r\n')
+        result = []
+        for index, raw in enumerate(list):
+            tmp = raw.split(split)
+            if len(tmp) == 4:
+                id = tmp[0]
+                novelNo = tmp[1]
+                chapterNo = tmp[2]
+                chapterTitle = tmp[3]
+                if id == id and novelNo == novelNo:
+                    Log.info("[ %s ] read [%s]"%(id, novelNo))
+                    read = ResponseReadChapter(id, novelNo, chapterNo, chapterTitle)
+                    result.append(read)
+                else:
+                    Log.info("[ %s ] not read [%s]"%(id, novelNo))
+            else:
+                Log.error("[ %s ] len is not 4 is [%s]"%(raw, str(len(tmp))))
+
+        return ObjectJson.convert_to_dicts(result)

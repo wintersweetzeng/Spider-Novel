@@ -123,10 +123,6 @@ def getChapter():
     else:
         return systemCode.responseError
 
-@app.route('/', methods=['POST', 'GET'])
-def hello_world():
-    return render_template(systemCode.baseFolder+u'/index.html',title = 'Home')
-    # return systemCode.baseFolder+u'/index.html'  http://www.jb51.net/article/64452.htm
 
 @app.route('/LoveNovel/updateNovel', methods=['POST', 'GET'])
 def updateNovel():
@@ -163,10 +159,116 @@ def getChapterSourceList():
     else:
         return systemCode.responseMethodError
 
+
+##  /LoveNovel/registry
+## request
+# header:content-type json
+# body:{"name":"zeng","pwd":"123456","org":"Super" }
+## response
+#error {"code":1000, "msg":"unsupport GET method, please use POST"}
+#    "{\"code\":11, \"msg\":"already registry error\"}"
+#    "{\"code\":10, \"msg\":"org error\"}"
+#    "{\"code\":12, \"msg\":"name or password is null\"}"
+#succ
+#{
+#    "id": 151248645273533,
+#    "name": "zeng",
+#    "org": "Super",
+#    "pwd": "zeng"
+#}
+@app.route('/LoveNovel/registry', methods=['POST', 'GET'])
+def registry():
+    if request.method == 'POST':
+        data = request.get_data()
+        dict = json.loads(data)
+        username = dict["name"]
+        password = dict["pwd"]
+        org = dict["org"]
+        result = requestMannager.registry(username, password, org)
+        return jsonify(result)
+    else:
+        return systemCode.responseMethodError
+
+
+##  /LoveNovel/login
+## request
+# header:content-type json
+# body:{"name":"liu","pwd":"123456" }
+## response
+#error "{\"code\":22, \"msg\":"this name not registry\"}"
+#    "{\"code\":20, \"msg\":"name or password is null\"}"
+#    "{\"code\":21, \"msg\":"name or password is error\"}"
+#succ
+#"{\"code\":0, \"msg\":\"success\", \"id\":\"151248720783409\"}"
+@app.route('/LoveNovel/login', methods=['POST', 'GET'])
+def login():
+    if request.method == 'POST':
+        data = request.get_data()
+        dict = json.loads(data)
+        username = dict["name"]
+        password = dict["pwd"]
+        result = requestMannager.login(username, password)
+        return jsonify(result)
+    else:
+        return systemCode.responseMethodError
+
+
+##  /LoveNovel/userGetChapter
+## request
+# header:content-type json
+# body:{"novelNo":"27_27047","chapterNo":"第一章", "chapterTitle":"沙漠中的彼岸花","id":"151248685702069"}
+## response
+#error {"code":1000, "msg":"unsupport GET method, please use POST"}
+#succ
+# {
+#     "content": "\t\t\t\t大漠孤烟直，长河落日圆。<br/>　　<br/>　　&nbsp;&nbsp;&nbsp;&nbs"
+# }
+@app.route('/LoveNovel/userGetChapter', methods=['POST', 'GET'])
+def userGetChapter():
+    if request.method == 'POST':
+        data = request.get_data()
+        dict = json.loads(data)
+        novelNo = dict["novelNo"]
+        chapterNo = dict["chapterNo"]
+        chapterTile = dict["chapterTitle"]
+        id = dict["id"]
+        result = requestMannager.userGetChapter(novelNo, chapterNo, chapterTile, id)
+        return jsonify(result)
+    else:
+        return systemCode.responseError
+
+##  /LoveNovel/queryUserReadChapter
+## request
+# header:content-type json
+# body:{"novelNo":"27_27047","id":"151248685702069"}
+## response
+#error {"code":1000, "msg":"unsupport GET method, please use POST"}
+#succ
+#[
+#    {
+#        "chapterNo": "第一章",
+#        "chapterTitle": "沙漠中的彼岸花",
+#        "id": "151248685702069",
+#        "novelNo": "27_27047"
+#    }
+#]
+@app.route('/LoveNovel/queryUserReadChapter', methods=['POST', 'GET'])
+def queryUserReadChapter():
+    if request.method == 'POST':
+        data = request.get_data()
+        dict = json.loads(data)
+        novelNo = dict["novelNo"]
+        id = dict["id"]
+        result = requestMannager.queryUserReadChapter(novelNo, id)
+        return jsonify(result)
+    else:
+        return systemCode.responseError
+
 # spider = SpiderMannager()
 # updateNovelThreads = []
 # updateThread = threading.Thread(target=spider.manager(),args=())
 # updateNovelThreads.append(updateThread)
+
 
 
 if __name__ == '__main__':
