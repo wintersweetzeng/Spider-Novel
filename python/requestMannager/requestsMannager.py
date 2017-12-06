@@ -26,7 +26,7 @@ class RequestMannager(object):
         if content != "":
             contentList = content.split('\r\n')
             for index, raw in enumerate(contentList):
-                if '#' in content:
+                if '#' in raw:
                     novelInfoList = raw.split(systemCode.fileContentSplit)
                     if len(novelInfoList) == 7:
                         novelInfo = ResponseNovel(novelInfoList[0],novelInfoList[1],novelInfoList[2],
@@ -47,7 +47,7 @@ class RequestMannager(object):
         if content != "":
             contentList = content.split('\r\n')
             for index, raw in enumerate(contentList):
-                if '#' in content:
+                if '#' in raw:
                     chapterInfoList = raw.split(systemCode.fileContentSplit)
                     if len(chapterInfoList) == 3:
                         chapterInfo = ResponseChapter(chapterInfoList[0],chapterInfoList[1],chapterInfoList[2])
@@ -99,7 +99,7 @@ class RequestMannager(object):
         if content != "":
             contentList = content.split('\r\n')
             for index, raw in enumerate(contentList):
-                if '#' in content:
+                if '#' in raw:
                     chapterInfoList = raw.split(systemCode.fileContentSplit)
                     if len(chapterInfoList) == 2:
                         chapterSourceInfo = ResponseNovelChapterSource(chapterInfoList[0],chapterInfoList[1])
