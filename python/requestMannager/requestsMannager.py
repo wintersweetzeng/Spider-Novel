@@ -4,6 +4,8 @@ import json, time, random
 from utils.fileTools import FileTools
 from utils.logTools import  Log
 from utils.urlTools import UrlTools
+from urllib2 import urlopen
+from utils.htmlTools import BeautifulSoup
 
 from code import systemCode
 from bean.response.responseNovel import ResponseNovel
@@ -12,6 +14,7 @@ from bean.response.responseChapterContent import ResponseChapterContent
 from bean.response.responseNovelChapterSource import ResponseNovelChapterSource
 from bean.response.responseUser import ResponseUser
 from bean.response.responseReadChapter import ResponseReadChapter
+from bean.response.responseQuery import ResponseQuery
 from utils.objectJson import ObjectJson
 
 class RequestMannager(object):
@@ -39,6 +42,45 @@ class RequestMannager(object):
         else:
             Log.error("getNovels content  %s NULL")
         return ObjectJson.convert_to_dicts(novels)
+
+    def queryNovels(self, novelName):
+        html = urlopen("http://zhannei.baidu.com/cse/search?s=3677118700255927857&q="+novelName)
+        bsObj=BeautifulSoup(html)
+        queryResults=[]
+        for link in bsObj.findAll(class_="result-item result-game-item"):
+            imgUrl=''
+            title=''
+            url=''
+            author=''
+            novelType=''
+            lastUpdateTime=''
+            lastUpdateChapter=''
+            for imglink in link.findAll(class_="result-game-item-pic-link-img"):
+                if 'src' in imglink.attrs:
+                    imgUrl=imglink.attrs['src']                    
+            for titlelink in link.findAll(class_="result-game-item-title-link"):
+                if 'href' in titlelink.attrs:
+                    url = titlelink.attrs['href']
+                if 'title' in titlelink.attrs:
+                    title=titlelink.attrs['title'].replace(' ', '').replace('\n', '')
+            for lastupdatechapter in link.findAll(class_="result-game-item-info-tag-item"):
+                if 'href' in titlelink.attrs:
+                    lastchapter=lastupdatechapter.attrs['href']
+            for novelinfo in link.findAll(class_="result-game-item-info"):
+                author = novelinfo.findAll("p")[0].findAll("span")[1].get_text().replace(' ','').replace('\n', '')
+                novelType = novelinfo.findAll("p")[1].findAll("span")[1].get_text()
+                lastUpdateChapter = novelinfo.findAll("p")[2].findAll("span")[1].get_text()
+                lastUpdateTime =  novelinfo.findAll("p")[3].findAll("a")[0].get_text()
+
+            #novel=ResponseQuery(imgUrl, title,lastchapter)
+            novel = ResponseQuery(imgUrl, title, url, author, novelType, lastUpdateChapter, lastUpdateTime)
+            queryResults.append(novel)
+        obj_arr=[]
+        for obj in queryResults:
+            dict={}
+            dict.update(obj.__dict__)
+            obj_arr.append(dict)
+        return obj_arr
 
     def getChapterList(self, novelNo):
         fileTools = FileTools(systemCode.baseFolder+u'/SourceUrlFile/'+novelNo+u'/'+systemCode.oneNovelAllChaptersInfoFile)

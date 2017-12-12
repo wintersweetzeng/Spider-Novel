@@ -4,6 +4,7 @@ import sys, json, os, threading
 from flask import Flask, request,render_template,jsonify
 
 from utils.fileTools import FileTools
+from urllib2 import urlopen
 from utils.logTools import Log
 from code import systemCode
 from spiderMannager import SpiderMannager
@@ -43,6 +44,21 @@ def getNovels():
         count = dict["count"]
         result1 = requestMannager.getNovels()
         return jsonify(result1)
+    else:
+        return systemCode.responseMethodError
+
+
+@app.route('/LoveNovel/queryNovels', methods=['POST', 'GET'])
+def queryNovels():
+    if request.method == 'POST':
+        data = request.get_data()
+        print data
+        dict = json.loads(data)
+        novelName = dict["novelname"]
+        print novelName
+        results = requestMannager.queryNovels(novelName)
+        print results
+        return jsonify(results)
     else:
         return systemCode.responseMethodError
 
